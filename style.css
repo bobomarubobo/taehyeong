@@ -1,0 +1,94 @@
+* {
+    margin:0;
+    padding: 0;
+}
+/* 헤더 */
+.header {
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+}
+
+/* 네비게이션 */
+.nav {
+    background-color: #444;
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+}
+
+.nav a {
+    color: #fff;
+    text-decoration: none;
+    margin: 0 10px;
+}
+
+/* 섹션 */
+.section {
+    padding: 20px;
+}
+
+/* 아이템 */
+.item {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-around;
+}
+
+/* 강화할 아이템 */
+.enhance-item, .enhance-action, .next-item {
+    display: inline-block;
+    background-color: #f0f0f0;
+    padding: 10px;
+    margin: 0;
+}
+
+/* 푸터 */
+.footer {
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+}
+
+/* 평점 입력 폼 */
+.rating-form {
+    margin-top: 20px;
+}
+
+.rating-form-table {
+    width: 100%;
+    text-align: center;
+}
+
+.rating-form-table fieldset {
+    display: inline-block;
+    text-align: left;
+}
+
+.rating-form-td {
+    text-align: left;
+}
+
+/* 별점 */
+.rate {
+    font-size: 0;
+}
+
+.rate-input {
+    display: none;
+}
+
+.rate-label {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-image: url(../images/star.png);
+    background-size: cover;
+    cursor: pointer;
+}
+
+.rate-label:hover, .rate-label:hover ~ .rate-label {
+    background-image: url(../images/star_fill.png);
+}

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>강화 시뮬레이션</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/star.css">
+    <style>
+        .star {
+            color: #FFD700;
+            /* 별 색상 */
+        }
+
+        .footer #average-rating {
+            color: yellow;
+            font-size: 24px;
+        }
+
+        .half-star {
+            color: red;
+            position: relative;
+            bottom: 0.2em;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>강화 시뮬레이션</h1>
+    </div>
+
+    <div class="nav">
+        <a href="#">강화하기</a>
+        <a href="#">도감</a>
+    </div>
+
+    <div class="section">
+        <div class="item">
+            <div class="enhance-item">
+                <h2>강화할 아이템</h2>
+            </div>
+            <div class="enhance-action">
+                <h2>강화하기</h2>
+            </div>
+            <div class="next-item">
+                <h2>다음 단계 아이템</h2>
+                <p>다음 아이템명</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <form class="rating-form">
+            <!-- 별점 입력란 -->
+            <label for="rating">별점을 선택해 주세요.</label><br>
+            <fieldset class="rate">
+                <input type="radio" id="rating5" name="rating" value="5"><label for="rating5" title="5점"></label>
+                <input type="radio" id="rating4" name="rating" value="4"><label for="rating4" title="4점"></label>
+                <input type="radio" id="rating3" name="rating" value="3"><label for="rating3" title="3점"></label>
+                <input type="radio" id="rating2" name="rating" value="2"><label for="rating2" title="2점"></label>
+                <input type="radio" id="rating1" name="rating" value="1"><label for="rating1" title="1점"></label>
+            </fieldset>
+
+            <!-- 코멘트 입력 폼 -->
+            <table class="rating-form-table">
+                <tr>
+                    <td>
+                        <label for="comment">댓글<div id="comment-count"></div></label>
+                    </td>
+                    <td><textarea id="comment" name="comment" placeholder="댓글을 입력하세요."></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="name">이름:</label>
+                    </td>
+                    <td><input type="text" id="name" name="name"></td>
+                    <td><label for="password">비밀번호:</label></td>
+                    <td><input type="password" id="password" name="password"></td>
+                    </td>
+                    <td>
+                        <button type="button" onclick="saveRatingAndComment()">작성하기</button>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- 별점과 코멘트를 표시할 영역 -->
+            <div id="rating-comments">
+                <h3>별점과 댓글</h3>
+                <div id="average-rating"></div>
+                <ul id="comments-list"></ul>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // 별점과 코멘트를 저장할 배열
+        var ratings = [];
+        var comments = [];
+        var maxCommentLength = 200;
+
+        // DOM 요소에 대한 참조
+        var commentInput = document.getElementById('comment');
+        var commentCountElement = document.getElementById('comment-count');
+        var averageRatingElement = document.getElementById('average-rating');
+
+        // 입력한 코멘트의 길이를 확인하고 제한을 적용하는 함수
+        function saveRatingAndComment() {
+            var comment = commentInput.value;
+            if (comment.trim().length === 0) {
+                alert('댓글을 입력하세요.');
+                return;
+            }
+            if (comment.length > maxCommentLength) {
+                alert('댓글은 최대 ' + maxCommentLength + '자까지 입력할 수 있습니다.');
+                return;
+            }
+
+            // 선택된 별점
+            var selectedRating = document.querySelector('input[name="rating"]:checked');
+            if (!selectedRating) {
+                alert('별점을 선택해주세요.');
+                return;
+            }
+
+            // 입력된 이름과 비밀번호
+            var name = document.getElementById('name').value;
+            var password = document.getElementById('password').value;
+
+            // 현재 시간
+            var currentTime = new Date();
+            var timeString = currentTime.toLocaleString();
+
+            // 별점과 코멘트를 배열에 저장
+            ratings.push(selectedRating.value);
+            comments.push({ name: name, comment: comment, password: password, time: timeString, rating: selectedRating.value });
+
+            // 저장된 별점과 코멘트를 표시
+            displayRatingsAndComments();
+            // 댓글 수 업데이트
+            updateCommentCount();
+            // 평균 별점 계산 및 표시
+            calculateAndDisplayAverageRating();
+        }
+
+        // 별점과 코멘트를 표시하는 함수
+        function displayRatingsAndComments() {
+            // 평균 별점 표시
+            var averageRating = calculateAverageRating();
+            averageRatingElement.innerHTML = '평균 별점: ' + '★'.repeat(parseInt(averageRating)) + '☆'.repeat(5 - parseInt(averageRating)) + ' (' + averageRating.toFixed(1) + '점)';
+
+            // 코멘트 목록 표시
+            var commentsList = document.getElementById('comments-list');
+            commentsList.innerHTML = '';
+            comments.forEach(function (comment, index) {
+                var li = document.createElement('li');
+                li.textContent = comment.name + ': ' + comment.comment + ' (' + comment.time + ')';
+
+                // 개별 댓글의 별점을 별표시로 변경
+                var ratingSpan = document.createElement('span');
+                ratingSpan.className = 'star';
+                ratingSpan.textContent = '★'.repeat(parseInt(comment.rating)) + '☆'.repeat(5 - parseInt(comment.rating));
+
+                var ratingNumber = document.createElement('span');
+                ratingNumber.textContent = '(' + comment.rating + '점)';
+
+                var editButton = document.createElement('button');
+                editButton.textContent = '수정';
+                editButton.onclick = function () {
+                    var newPassword = prompt('새로운 비밀번호를 입력하세요.');
+                    if (newPassword !== null && newPassword.trim() !== '') {
+                        comments[index].password = newPassword;
+                        alert('비밀번호가 변경되었습니다.');
+                    } else {
+                        alert('비밀번호를 입력하세요.');
+                    }
+                };
+
+                var deleteButton = document.createElement('button');
+                deleteButton.textContent = '삭제';
+                deleteButton.onclick = function () {
+                    var inputPassword = prompt('비밀번호를 입력하세요.');
+                    if (inputPassword === comments[index].password) {
+                        comments.splice(index, 1);
+                        alert('댓글이 삭제되었습니다.');
+                        displayRatingsAndComments();
+                        updateCommentCount();
+                        calculateAndDisplayAverageRating();
+                    } else {
+                        alert('비밀번호가 일치하지 않습니다.');
+                    }
+                };
+
+                li.appendChild(ratingSpan);
+                li.appendChild(ratingNumber);
+                li.appendChild(editButton);
+                li.appendChild(deleteButton);
+
+                commentsList.appendChild(li);
+            });
+        }
+
+        // 평균 별점 계산하는 함수
+        function calculateAverageRating() {
+            var totalRating = ratings.reduce(function (acc, rating) {
+                return acc + parseInt(rating);
+            }, 0);
+            return totalRating / ratings.length;
+        }
+
+        // 댓글 수 업데이트 함수
+        function updateCommentCount() {
+            commentCountElement.textContent = '(' + comments.length + ')';
+        }
+    </script>
+</body>
+
+</html>
